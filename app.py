@@ -33,7 +33,6 @@ def load_user_database():
         with open(USER_DB_FILE, "r") as f:
             try:
                 db = json.load(f)
-                # Overwrite or enforce your custom owner settings into the database file
                 db["Billy"] = {
                     "password": hashlib.sha256("Rd129286".encode()).hexdigest(),
                     "role": "OWNER"
@@ -42,7 +41,6 @@ def load_user_database():
             except:
                 pass
                 
-    # Default master account configuration (Your username is Billy!)
     return {
         "Billy": {
             "password": hashlib.sha256("Rd129286".encode()).hexdigest(),
@@ -180,9 +178,11 @@ if raw_input := st.chat_input("Type a message or owner command..."):
                     st.rerun()
                     
             elif command_text.startswith("/timeout "):
-                try:
-                    parts = command_text.replace("/timeout ", "").split()
+                parts = command_text.replace("/timeout ", "").split()
+                if len(parts) >= 2:
                     target_user = parts[0]
-                    duration_minutes = int(parts[1])
-                    if target_user != my_name:
-                        st.session_state["timeout_users"][target_user] = time.time() + (duration_minutes * 60)
+                    duration_str = parts[1]
+                    if duration_str.isdigit():
+                        duration_minutes = int(duration_str)
+                        if target_user != my_name:
+                            st.session_state["timeout_users"][target_user] = time.time() + (duration_minutes * 60)
