@@ -182,8 +182,7 @@ if raw_input := st.chat_input("Type a message or owner command..."):
             elif command_text.startswith("/timeout "):
                 try:
                     parts = command_text.replace("/timeout ", "").split()
-                    target_user = parts
-                    duration_minutes = int(parts)
+                    target_user = parts[0]
+                    duration_minutes = int(parts[1])
                     if target_user != my_name:
                         st.session_state["timeout_users"][target_user] = time.time() + (duration_minutes * 60)
-st.session_state["global_chat_history"].append({"user": "System", "tag": "SYSTEM", "time": datetime.datetime.now().strftime("%H:%M"), "content": f"User '{target_user}' has been placed in timeout for {duration_minutes} minute(s)."})st.rerun()except:st.error("Error! Use syntax: /timeout [Username] [minutes]")st.stop()elif command_text.startswith("/alert "):alert_msg = command_text.replace("/alert ", "").strip()st.session_state["global_chat_history"].append({"user": my_name, "tag": "OWNER ALERT", "time": datetime.datetime.now().strftime("%H:%M"), "content": alert_msg.upper()})st.rerun()else:user_tag = "OWNER" if st.session_state["is_owner"] else "STUDENT"st.session_state["global_chat_history"].append({"user": my_name, "tag": user_tag,"time": datetime.datetime.now().strftime("%H:%M"),"content": clean_text(raw_input)})st.rerun()
