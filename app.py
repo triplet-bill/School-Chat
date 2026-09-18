@@ -94,7 +94,6 @@ def get_active_users():
     presence = load_presence_database()
     now = time.time()
     active = []
-    # If a user has interacted within the last 5 minutes, consider them online
     for user, last_seen in list(presence.items()):
         if now - last_seen < 300:
             active.append(user)
@@ -160,23 +159,18 @@ if not st.session_state["gate_cleared"]:
                 st.success("🎉 Account created successfully! Switch to the 'Log In' tab to join.")
     st.stop()
 
-# Track that user is still active right now
+# Track active presence
 update_user_presence(st.session_state["nickname"])
 
 # --- 👥 SIDEBAR SIDE MEMBER LIST PANEL ---
 with st.sidebar:
     st.markdown("<h2 style='color: white;'>👥 Active Members</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color: gray; font-size: 12px;'>Users online in the last 5m:</p>", unsafe_allow_html=True)
-    
     online_users = get_active_users()
-    
-    # Render users cleanly on the sidebar pane
     for user in online_users:
         if user == "Billy":
             st.markdown("👑 **Billy** *(Owner)*")
         else:
             st.markdown(f"👤 {user}")
-            
     st.markdown("---")
     if st.button("🔄 Refresh Members/Messages", use_container_width=True):
         st.rerun()
@@ -186,7 +180,7 @@ st.markdown("<h2 style='color: white; margin-bottom: 0px;'>🏫 Live School Room
 role_label = "👑 OWNER" if st.session_state["is_owner"] else "STUDENT"
 st.markdown(f"<p style='color: #888888; font-size: 14px;'>Active Session: <b style='color:#ffffff;'>{st.session_state['nickname']}</b> ({role_label})</p>", unsafe_allow_html=True)
 
-# Load fresh logs
+# Load layout parameters
 global_history = load_chat_database()
 mod_db = load_mod_database()
 
@@ -222,7 +216,9 @@ with chat_container:
         time_stamp = f"<span style='color:#6b7280; font-size:11px; margin-left:8px;'>{item['time']}</span>"
         
         if st.session_state["is_owner"] and item["user"] != "System" and item["user"] != st.session_state["nickname"]:
-            c_msg, c_btn = st.columns([0.88, 0.12])
+            c_msg, c_btn = st.columns([0.85, 0.15])
             with c_msg:
                 if tag == "OWNER":
                     st.markdown(f"<div><span class='owner-badge'>👑 OWNER</span> <b style='color:#ffffff;'>{item['user']}</b>{time_stamp}</div><div style='color: #f3f4f6; padding: 2px 0px 8px 0px;'>{item['content']}</div>", unsafe_allow_html=True)
+                elif tag == "OWNER ALERT":
+                    st.markdown(f"<div class='alert-box'><span class='owner-badge'>🚨 ALERT</span> <b style='color:#ffffff;'>{item['user']}</b>{time_stamp}<br><div style='color:#ff4b4b; padding-top:4px;'>{item['content']}</div></div>", unsafe_allow_html=True)
